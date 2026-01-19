@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CV Analiz Sistemi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #eef2ff;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --green-600: #16a34a;
+            --red-600: #dc2626;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(to bottom right, #f9fafb, #f1f5f9);
+            color: var(--gray-800);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1.25rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        h1, h2, h3 {
+            color: var(--gray-800);
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.6rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        input[type="file"] {
+            padding: 0.5rem;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            margin: 2rem 0;
+        }
+
+        .stat-box {
+            background: var(--primary-light);
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .stat-box strong {
+            display: block;
+            font-size: 2.1rem;
+            margin: 0.4rem 0;
+            color: var(--primary);
+        }
+
+        .pill {
+            display: inline-block;
+            background: #e0e7ff;
+            color: var(--primary);
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            margin: 0.3rem;
+        }
+
+        .success { color: var(--green-600); }
+        .danger  { color: var(--red-600); }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo">AI CV Analyzer</div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <h1 style="text-align:center; margin-bottom:1.5rem;">CV'nizi Yükleyin, Anında Analiz Edin</h1>
+
+        <div class="card">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="position">Pozisyon (isteğe bağlı)</label>
+                    <select name="position" id="position">
+                        <option value="">Sistem önerisiyle devam et</option>
+                        <option value="Backend Developer">Backend Developer</option>
+                        <option value="Data Scientist">Data Scientist</option>
+                        <option value="DevOps Engineer">DevOps Engineer</option>
+                        <option value="HR">İnsan Kaynakları Uzmanı</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="cv">CV Dosyası (PDF)</label>
+                    <input type="file" name="cv" id="cv" accept=".pdf" required>
+                </div>
+
+                <div style="text-align:center; margin-top:2rem;">
+                    <button type="submit" class="btn">CV'yi Analiz Et</button>
+                </div>
+            </form>
+        </div>
+
+        {% if result %}
+        <div class="card">
+            <h2 style="margin-bottom:1.5rem;">Analiz Sonucu: {{ result.filename }}</h2>
+
+            <div class="result-grid">
+                <div class="stat-box">
+                    <div>Pozisyon</div>
+                    <strong>{{ result.position }}</strong>
+                </div>
+                <div class="stat-box">
+                    <div>Seviye</div>
+                    <strong>{{ result.seniority }}</strong>
+                </div>
+                <div class="stat-box">
+                    <div>Uygunluk Skoru</div>
+                    <strong>{{ result.score }}%</strong>
+                </div>
+                <div class="stat-box">
+                    <div>Durum</div>
+                    <strong class="{% if result.status == 'Uygun' %}success{% else %}danger{% endif %}">
+                        {{ result.status }}
+                    </strong>
+                </div>
+            </div>
+
+            <div style="margin-top:2rem;">
+                <h3>Bulunan Yetkinlikler</h3>
+                <div style="margin-top:1rem;">
+                    {% for skill in result.skills %}
+                    <span class="pill">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="margin-top:1.5rem;">
+                <h3>Pozisyonla Eşleşen Yetkinlikler</h3>
+                <div style="margin-top:1rem;">
+                    {% for m in result.matched %}
+                    <span class="pill" style="background:#d1fae5; color:#065f46;">{{ m }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if result.explain and (result.explain.missing_skills or result.explain.extra_skills) %}
+            <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid #e5e7eb;">
+                <h3>Açıklama</h3>
+                {% if result.explain.missing_skills %}
+                <p style="margin:1rem 0;">
+                    <strong style="color:var(--red-600);">Eksik:</strong>
+                    {{ result.explain.missing_skills | join(', ') }}
+                </p>
+                {% endif %}
+                {% if result.explain.extra_skills %}
+                <p>
+                    <strong style="color:#15803d;">Ekstra:</strong>
+                    {{ result.explain.extra_skills | join(', ') }}
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+
+    <footer>
+        © 2026 AI CV Analyzer
+    </footer>
+
+</body>
+</html>

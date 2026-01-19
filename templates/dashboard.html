@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard - AI CV Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #eef2ff;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --green-600: #16a34a;
+            --red-600: #dc2626;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-800);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .btn-back {
+            background: white;
+            color: var(--primary);
+            padding: 0.7rem 1.4rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-radius: 10px;
+        }
+
+        .stat-card.total    { background: var(--primary-light); }
+        .stat-card.suitable  { background: #ecfdf5; color: var(--green-600); }
+        .stat-card.unsuitable{ background: #fef2f2; color: var(--red-600); }
+
+        .stat-number {
+            font-size: 3.2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .list-section {
+            margin-top: 1.5rem;
+        }
+
+        .list-section h3 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.9rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .seniority-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .seniority-box {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .seniority-box .number {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-flex">
+            <div class="logo">HR Dashboard</div>
+            <a href="{{ url_for('index') }}" class="btn-back">← Yeni CV Yükle</a>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top:2.5rem;">
+
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div>Toplam CV</div>
+                <div class="stat-number">{{ total }}</div>
+            </div>
+            <div class="stat-card suitable">
+                <div>Uygun Aday</div>
+                <div class="stat-number">{{ uygun }}</div>
+            </div>
+            <div class="stat-card unsuitable">
+                <div>Uygun Değil</div>
+                <div class="stat-number">{{ uygun_degil }}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Pozisyona Göre Dağılım</h3>
+            <div class="list-section">
+                {% for pos, count in position_counts %}
+                <div class="list-item">
+                    <span>{{ pos or 'Belirtilmemiş' }}</span>
+                    <strong>{{ count }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Ortalama Uygunluk Skoru (%)</h3>
+            <div class="list-section">
+                {% for pos, avg in avg_scores %}
+                <div class="list-item">
+                    <span>{{ pos or 'Belirtilmemiş' }}</span>
+                    <strong style="color:var(--primary);">{{ avg }}%</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Deneyim Seviyesi Dağılımı</h3>
+            <div class="seniority-grid">
+                {% for level, count in seniority_counts %}
+                <div class="seniority-box">
+                    <div class="number">{{ count }}</div>
+                    <div>{{ level }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        © 2026 AI CV Analyzer • Basit & Temiz Tasarım
+    </footer>
+
+</body>
+</html>
